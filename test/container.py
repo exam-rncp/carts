@@ -10,24 +10,25 @@ from util.Dredd import Dredd
 
 class CartContainerTest(unittest.TestCase):
     TAG = "latest"
-    COMMIT = ""
+    COMMIT = "v0.1"
     container_name = Docker().random_container_name('carts')
     mongo_container_name = Docker().random_container_name('carts-db')
     def __init__(self, methodName='runTest'):
         super(CartContainerTest, self).__init__(methodName)
-        self.ip = ""
+        self.ip = "127.0.0.1"
         
     def setUp(self):
         Docker().start_container(container_name=self.mongo_container_name, image="mongo", host="carts-db")
+        REPO = "f3lin"
         command = ['docker', 'run',
                    '-d',
                    '--name', CartContainerTest.container_name,
                    '-h', 'carts',
                    '--link',
                    CartContainerTest.mongo_container_name,
-                   'weaveworksdemos/carts:' + self.COMMIT]
+                   REPO +'/carts:' + self.COMMIT]
         Docker().execute(command)
-        self.ip = Docker().get_container_ip(CartContainerTest.container_name)
+        self.ip = "127.0.0.1"
 
     def tearDown(self):
         Docker().kill_and_remove(CartContainerTest.container_name)
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     if CartContainerTest.TAG == "":
         CartContainerTest.TAG = default_tag
 
-    CartContainerTest.COMMIT = os.environ["COMMIT"]   
+    CartContainerTest.COMMIT = os.environ["COMMIT"] if os.environ["COMMIT"] else 'latest'   
     # Now set the sys.argv to the unittest_args (leaving sys.argv[0] alone)
     sys.argv[1:] = args.unittest_args
     unittest.main()
